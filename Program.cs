@@ -123,7 +123,7 @@ internal static class Program
     private static bool ContinueOrQuit()
     {
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write("\n\nДля выхода из программы нажмите 'q', для начала сначала нажмите любую другую клавишу...");
+        Console.Write("\n\nДля выхода из программы нажмите 'q', для того, начать сначала нажмите любую другую клавишу...");
         Console.ForegroundColor = ConsoleColor.White;
 
         var keyInfo = Console.ReadKey();
