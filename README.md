@@ -1,92 +1,78 @@
-# cache-memory
+﻿# <a name="ole_link1"></a>Практическое занятие №4
+# «Расчёт параметров кэш-памяти»
 
 
+|<p>№ </p><p>комбинации</p>|Объём ОЗУ (Гб)|ШД |Слов в строке |Делитель кэш|k|
+| :- | :- | :- | :- | :- | :- |
+|388|64|128|32|512|16|
+|592|64|64|128|1024|4|
 
-## Getting started
+Необходимо вычислить разрядность полей (TAG, SET/INDEX, OFFSET) адреса слова ОЗУ, по которым происходит его поиск в и (в случае нахождения, естественно) извлечение из кэш-памяти для трёх различных типов – полностью ассоциативного, множественноассоциативного (с заданным по варианту количеством входов – k) и прямого отображения.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+1. Расчёт параметров кэш-памяти начинается прежде всего с определения размера самой кэш-памяти. В рамках задания настоящей практической работы размер кэш-памяти определяется путём деления заданного объёма ОЗУ (в данном случае 8 Гб) на «делитель» кэш-памяти – 256. Примечание: понятие делитель – весьма условное и на практике, как правило не встречается, оно использовано в данном случае только для удобства генерирования вариантов. Он обозначает лишь – «во сколько раз объём кэш-памяти меньше объёма ОЗУ». 
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+***Для комбинации 388 объём кэш-памяти будет равен: 64 \* 2^30 / 512Mb  = 128Mb.***
 
-## Add your files
+***Для комбинации 592 объём кэш-памяти будет равен: 64 \* 2^30 / 1024Mb = 64Mb.***
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+1. Следующим шагом определим количество бит, необходимых для адресации заданного объёма ОЗУ (т.е. фактически – разрядность шины адреса).
 
-```
-cd existing_repo
-git remote add origin https://gitlab.com/personal-programs/cache-memory.git
-git branch -M main
-git push -uf origin main
-```
+***Для комбинации 388 и 592: ША = Log2(64GB) = 36 бит.***
 
-## Integrate with your tools
+1. Самым простым параметром из задания, который мы можем определить – это смещение в строке кэш (OFFSET), которое будет одинаковым для всех типов кэш-памяти. В рамках данной работы мы делаем допущение, что адресация в ОЗУ (и следовательно в кэш-памяти) происходит ПОСЛОВНО, и соответственно количество бит смещения будет равным Log2(количество слов с строке кэш). 
 
-- [ ] [Set up project integrations](https://gitlab.com/personal-programs/cache-memory/-/settings/integrations)
+***Для комбинации 388: OFFSET = Log2(32) = 5 бит.*** 
 
-## Collaborate with your team
+***Для комбинации 592: OFFSET = Log2(128) = 7 бит.*** 
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+Примечание: на самом деле, в разных реализациях кэш-памяти используется как побайтная, так и пословная адресация.
 
-## Test and Deploy
+1. Остальные параметры (TAG и SET/INDEX) зависят от конкретного типа кэш-памяти. Параметр TAG вычисляется на самом последнем шаге, а параметры SET/INDEX – по сути представляют собой одно и то же – «номер набора строк» и «номер одной строки» кэш, но для разных типов – k-мерного и прямого отображения, соответственно. В рамках данного ПЗ оба этих параметров будем обозначать одним названием – SET. Прим: так как разрядность шины данных дана в битах, а все вычисления мы производим в байтах, то для определения размера строки в байтах необходимо разделить параметр ШД на 8 бит и умножить на количество слов в строке.
 
-Use the built-in continuous integration in GitLab.
+***Для комбинации 388 размер строки в байтах = 128/8 \* 32 = 512 байт.***
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+***Для комбинации 592 размер строки в байтах = 64/8 \* 128 = 1024 байт.***
 
-***
+1. ` `Для кэш-памяти прямого отображения вычисление параметра SET производится путём деления размера кэш на размер одной её строки и вычисление двоичного логарифма от получившегося количества строк. Примечание: в данном случае за объём строки берётся только объём полезных данных, хранимых в ней. Биты тэга не учитываются. 
 
-# Editing this README
+***Для комбинации 388 это будет равно: SETk=1 = Log2( 128Mb/512) = 18***
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+***Для комбинации 592 это будет равно: SETk=1 = Log2( 64Mb/1024) = 16***
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+1. Для кэш k-мерной ассоциативности вычисление параметра SET производится не для каждой строки, а для набора из k строк, соответственно можно от полученного на предыдущем шаге значения отнять логарифм двоичный от k.
 
-## Name
-Choose a self-explaining name for your project.
+` `***Для комбинации 388 это будет равно: SETk=16 = 18 - Log2(16) = 14***
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+***Для комбинации 592 это будет равно: SETk=4 = 16 - Log2(4) = 14***
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+1. ` `Так как в случае полностью ассоциативной кэш-памяти любая строка может располагаться в любом её месте, то параметр SET для неё всегда равен 0 независимо от других параметров.
+1. На последнем шаге вычисляется TAG – старшие биты адреса, которые хранятся в кэш-памяти вместе со строкой и по которым непосредственно и производится ассоциативный поиск. Соответственно для вычисления размера поля TAG необходимо отнять от количества бит полного адреса суммарное количество бит уже вычисленных полей – SET и OFFSET. Для рассматриваемого примера это будет: 
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+1. ` `***Для комбинации 388 в случае k=1 (прямого отображения): TAGk=1 = 36 - 5 - 18 = 13***
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+` `***Для комбинации 592 в случае k=1 (прямого отображения): TAGk=1 = 36 - 7 - 16 = 13***
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+1. ` `***Для комбинации 388 в случае k=4 (k- мерной ассоциативности): TAGk=16 = 36 - 5 -14 = 17***
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+` `***Для комбинации 592 в случае k=4 (k- мерной ассоциативности): TAGk=4 = 36 - 7 - 14 = 15***
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+1. ` `***Для комбинации 388 в случае k= кол-ву строк (полностью ассоциативный): TAGk= = 36 - 5 - 0 = 31.*** 
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+` `***Для комбинации 592 в случае k= кол-ву строк (полностью ассоциативный): TAGk= = 36 - 7 - 0 = 29.***
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+1. Ответы:
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+***Ответ для комбинации 388:***
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+|k=1 (прямой доступ)||k=16 (множ.-ассоц.)||<p>k=строк в кэше</p><p>(полностью ассоциативный)</p>|
+| :-: | :- | :-: | :- | :-: |
+|TAG|SET|OFFSET||TAG|SET|OFFSET||TAG|SET|OFFSET|
+|**13**|**18**|**5**||**17**|**14**|**5**||**31**|**0**|**5**|
 
-## License
-For open source projects, say how it is licensed.
+***Ответ для комбинации 592:***
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+|k=1 (прямой доступ)||k=4 (множ.-ассоц.)||<p>k=строк в кэше</p><p>(полностью ассоциативный)</p>|
+| :-: | :- | :-: | :- | :-: |
+|TAG|SET|OFFSET||TAG|SET|OFFSET||TAG|SET|OFFSET|
+|**13**|**16**|**7**||**15**|**14**|**7**||**29**|**0**|**7**|
+
