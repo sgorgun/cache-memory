@@ -1,6 +1,6 @@
 ﻿namespace CacheMemory;
 
-internal class Cash
+internal class Cache
 {
     public long SizeOfRam { get; set; }
     public long SizeOfBus { get; set; }
@@ -17,7 +17,7 @@ internal class Cash
     public long TagK1 { get; set; }
     public long TagKx { get; set; }
     public long TagFullAssociative { get; set; }
-    public Cash(long sizeOfRam, long sizeOfBus, long wordsInCashLine, long cashDivider, long k)
+    public Cache(long sizeOfRam, long sizeOfBus, long wordsInCashLine, long cashDivider, long k)
     {
         SizeOfRam = sizeOfRam;
         SizeOfBus = sizeOfBus;
@@ -72,51 +72,51 @@ internal static class Program
     {
         while (true)
         {
-            var cash = ConditionsCash();
+            var cash = ConditionsCache();
             cash.Calculate();
             cash.PrintResult();
             if (ContinueOrQuit()) break;
         }
     }
 
-    private static Cash ConditionsCash()
+    private static Cache ConditionsCache()
     {
         Console.WriteLine("Введите размер ОЗУ в Гб:");
         long sizeOfRam;
-        while (!long.TryParse(Console.ReadLine(), out sizeOfRam) && sizeOfRam <= 0)
+        while (!long.TryParse(Console.ReadLine(), out sizeOfRam) || sizeOfRam <= 0)
         {
             Console.WriteLine("Неправильный формат. Введите размер ОЗУ в Гб:");
         }
 
         Console.WriteLine("Введите размер шины (ШД) в битах:");
         long sizeOfBus;
-        while (!long.TryParse(Console.ReadLine(), out sizeOfBus) && sizeOfBus <= 0)
+        while (!long.TryParse(Console.ReadLine(), out sizeOfBus) || sizeOfBus <= 0)
         {
             Console.WriteLine("Неправильный формат. Введите размер шины (ШД) в битах:");
         }
 
         Console.WriteLine("Введите количество слов в строке:");
         long wordsInCashLine;
-        while (!long.TryParse(Console.ReadLine(), out wordsInCashLine) && wordsInCashLine <= 0)
+        while (!long.TryParse(Console.ReadLine(), out wordsInCashLine) || wordsInCashLine <= 0)
         {
             Console.WriteLine("Неправильный формат. Введите количество слов в строке:");
         }
 
         Console.WriteLine("Введите делитель КЭШ:");
         long cashDivider;
-        while (!long.TryParse(Console.ReadLine(), out cashDivider) && cashDivider <= 0)
+        while (!long.TryParse(Console.ReadLine(), out cashDivider) || cashDivider <= 0)
         {
             Console.WriteLine("Неправильный формат. Введите делитель КЭШ:");
         }
 
         Console.WriteLine("Введите k:");
         long k;
-        while (!long.TryParse(Console.ReadLine(), out k) && k <= 0)
+        while (!long.TryParse(Console.ReadLine(), out k) || k <= 0)
         {
             Console.WriteLine("Неправильный формат. Введите k:");
         }
 
-        var cash = new Cash(sizeOfRam, sizeOfBus, wordsInCashLine, cashDivider, k);
+        var cash = new Cache(sizeOfRam, sizeOfBus, wordsInCashLine, cashDivider, k);
         return cash;
     }
 
